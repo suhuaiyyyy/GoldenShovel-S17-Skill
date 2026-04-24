@@ -1,0 +1,7 @@
+interface:
+  display_name: "金铲铲 S17 阵容助手"
+  short_description: "查询 S17 棋子羁绊并自动组阵容"
+  brand_color: "#197B6A"
+  default_prompt: "Use $jcc-s17-lineup to build a 金铲铲 S17 lineup from my trait and population requirements."
+policy:
+  allow_implicit_invocation: true

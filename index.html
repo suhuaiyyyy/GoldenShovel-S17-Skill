@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>金铲铲 S17 阵容与羁绊助手</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f2;
+      --panel: #ffffff;
+      --ink: #1d2524;
+      --muted: #66706d;
+      --line: #dfe4da;
+      --accent: #cc3e2f;
+      --accent-2: #197b6a;
+      --gold: #bf8b22;
+      --blue: #2f6abf;
+      --shadow: 0 16px 36px rgba(23, 34, 31, .10);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        linear-gradient(135deg, rgba(204,62,47,.09), transparent 34%),
+        linear-gradient(225deg, rgba(25,123,106,.10), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+      font: 14px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button {
+      border: 0;
+      cursor: pointer;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 700;
+    }
+    button.secondary {
+      background: #edf1ea;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--ink);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(25,123,106,.6);
+      box-shadow: 0 0 0 3px rgba(25,123,106,.14);
+    }
+    textarea { min-height: 92px; resize: vertical; }
+
+    .app { max-width: 1440px; margin: 0 auto; padding: 22px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    .hero-main {
+      min-height: 230px;
+      padding: 28px;
+      border: 1px solid rgba(29,37,36,.12);
+      background:
+        radial-gradient(circle at 14% 20%, rgba(255,255,255,.9), transparent 18%),
+        linear-gradient(120deg, rgba(204,62,47,.18), rgba(25,123,106,.18)),
+        #eff2e7;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -80px auto;
+      width: 460px;
+      height: 220px;
+      background:
+        linear-gradient(90deg, transparent 0 10%, rgba(29,37,36,.12) 10% 11%, transparent 11% 22%, rgba(29,37,36,.12) 22% 23%, transparent 23%),
+        linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0));
+      transform: rotate(-10deg);
+      border-radius: 8px;
+    }
+    h1 { margin: 0 0 12px; font-size: clamp(28px, 4vw, 56px); line-height: 1.04; letter-spacing: 0; }
+    .lead { margin: 0; max-width: 760px; color: #35413f; font-size: 16px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 24px;
+      max-width: 620px;
+    }
+    .stat {
+      padding: 14px;
+      border: 1px solid rgba(29,37,36,.14);
+      background: rgba(255,255,255,.72);
+      border-radius: 8px;
+    }
+    .stat b { display: block; font-size: 26px; line-height: 1.1; }
+    .stat span { color: var(--muted); }
+
+    .composer {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .composer h2, .section-title h2 { margin: 0; font-size: 20px; }
+    .composer-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+    .quick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick button { padding: 7px 10px; font-size: 12px; }
+    .hint { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 14px;
+      display: grid;
+      gap: 14px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(23,34,31,.06);
+    }
+    .panel h3 { margin: 0 0 12px; font-size: 16px; }
+    .filters { display: grid; gap: 10px; }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+    }
+    .check input { width: auto; }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab {
+      background: #eef2eb;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+    }
+    .tab.active { background: var(--accent-2); color: #fff; border-color: var(--accent-2); }
+
+    .lineup {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(92px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .slot {
+      min-height: 120px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff, #f8faf5);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .slot .cost { color: var(--gold); font-weight: 800; }
+    .slot-name { font-weight: 900; font-size: 16px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(29,37,36,.12);
+      background: #f0f3ec;
+      color: #26302e;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .chip.active { background: rgba(25,123,106,.12); color: #0f6255; border-color: rgba(25,123,106,.3); }
+    .chip.warn { background: rgba(191,139,34,.12); color: #8a6011; border-color: rgba(191,139,34,.35); }
+    .chip.cost1 { background: #eef1ee; }
+    .chip.cost2 { background: #e8f3ed; }
+    .chip.cost3 { background: #e7f0fb; }
+    .chip.cost4 { background: #f0e9fb; }
+    .chip.cost5 { background: #fff1d8; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfa;
+    }
+    .metric b { display: block; font-size: 24px; }
+    .metric span { color: var(--muted); font-size: 12px; }
+
+    .trait-bars { display: grid; gap: 9px; margin-top: 12px; }
+    .trait-row {
+      display: grid;
+      grid-template-columns: 110px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #e7ece3;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      width: var(--w);
+      background: var(--accent-2);
+      border-radius: inherit;
+    }
+    .trait-row.inactive .bar i { background: var(--gold); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 178px;
+      box-shadow: 0 8px 20px rgba(23,34,31,.05);
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+    .card h3 { margin: 0; font-size: 18px; }
+    .desc {
+      color: var(--muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      white-space: pre-line;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+    .trait-card .desc { -webkit-line-clamp: 6; }
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.6);
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .lineup { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    @media (max-width: 680px) {
+      .app { padding: 12px; }
+      .hero-main { padding: 20px; }
+      .stats, .summary-grid { grid-template-columns: 1fr; }
+      .lineup { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .trait-row { grid-template-columns: 1fr; }
+      .composer-actions { grid-template-columns: 1fr; }
+      .checks { grid-template-columns: 1fr; }
+      .section-title { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="hero-main">
+        <h1>金铲铲 S17 阵容与羁绊助手</h1>
+        <p class="lead">基于本地 Excel 的棋子、技能、羁绊和羁绊效果生成。输入类似“在8人口下，开启羁绊数量最多的8个棋子”，页面会解析人口并自动组建候选阵容。</p>
+        <div class="stats">
+          <div class="stat"><b id="unitCount">0</b><span>棋子</span></div>
+          <div class="stat"><b id="traitCount">0</b><span>羁绊</span></div>
+          <div class="stat"><b id="tierCount">0</b><span>可识别档位</span></div>
+        </div>
+      </div>
+      <section class="composer">
+        <h2>阵容生成</h2>
+        <textarea id="promptInput">在8人口下，开启羁绊数量最多的8个棋子</textarea>
+        <div class="composer-actions">
+          <input id="levelInput" type="number" min="1" max="10" value="8" aria-label="人口">
+          <button id="buildBtn">生成阵容</button>
+        </div>
+        <div class="quick">
+          <button class="secondary" data-example="在8人口下，开启羁绊数量最多的8个棋子">8人口最多羁绊</button>
+          <button class="secondary" data-example="在7人口下，优先开启暗星和游侠">7人口暗星游侠</button>
+          <button class="secondary" data-example="在9人口下，包含太空律动，开启羁绊数量最多">9人口太空律动</button>
+        </div>
+        <p class="hint">档位优先从羁绊效果中的 `(2)`、`（3）`、`2未来` 这类文本提取；没有标注档位的多棋子羁绊默认按 1 人视为已开启，并在页面里标记。</p>
+      </section>
+    </section>
+
+    <section class="layout">
+      <aside class="sidebar">
+        <section class="panel">
+          <h3>筛选</h3>
+          <div class="filters">
+            <input id="searchInput" placeholder="搜索棋子、技能、羁绊">
+            <select id="traitFilter"><option value="">全部羁绊</option></select>
+            <div class="checks" id="costFilters"></div>
+            <button class="secondary" id="resetBtn">重置筛选</button>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>当前阵容羁绊</h3>
+          <div id="activeTraits" class="trait-bars"></div>
+        </section>
+      </aside>
+
+      <section>
+        <section class="panel" id="lineupPanel">
+          <div class="section-title">
+            <h2>推荐阵容</h2>
+            <div class="tabs">
+              <button class="tab active" data-tab="units">棋子</button>
+              <button class="tab" data-tab="traits">羁绊</button>
+            </div>
+          </div>
+          <div class="summary-grid" id="summaryGrid"></div>
+          <div class="lineup" id="lineup"></div>
+          <div class="chips" id="lineupChips"></div>
+        </section>
+        <section style="height:14px"></section>
+        <section id="unitsView">
+          <div class="section-title">
+            <h2>棋子总览</h2>
+            <span class="hint" id="resultCount"></span>
+          </div>
+          <div class="cards" id="unitCards"></div>
+        </section>
+        <section id="traitsView" hidden>
+          <div class="section-title">
+            <h2>羁绊总览</h2>
+            <span class="hint">括号档位已解析为解锁人数</span>
+          </div>
+          <div class="cards" id="traitCards"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const S17_DATA = {"units":[{"n":"贝蕾亚","c":1,"s":"狂热鱼群","d":"【狂热鱼群】\n被动：每损失19%生命值，获得2.0%攻击速度。\n主动：对目标造成物理伤害：若目标为坦克则多造成部分物理伤害。","t":["游侠","幻灵战队","海魔人"]},{"n":"亚托克斯","c":1,"s":"星辰斩","d":"【星辰斩】","t":["堡垒卫士","新星特攻队"]},{"n":"凯特琳","c":1,"s":"爆头","d":"【爆头】","t":["织命者","新星特攻队"]},{"n":"丽桑卓","c":1,"s":"暗物质","d":"【暗物质】","t":["暗星","牧羊人","魔术师"]},{"n":"科加斯","c":1,"s":"","d":"对当前目标吞噬造成魔法伤害并永久增加自身生命值，若击杀目标则叠加更多生命值。","t":["暗星","斗士"]},{"n":"维迦","c":1,"s":"木灵族流星雨","d":"【木灵族流星雨】","t":["魔术师","木灵族"]},{"n":"波比","c":1,"s":"","d":"获得持续4秒的护盾值。持续期间，2格内的友军获得波比护甲和魔抗。 [木灵加成] 木灵对最近的几名友军提供护盾持续4秒。","t":["木灵族","堡垒卫士"]},{"n":"内瑟斯","c":1,"s":"律动苏珊","d":"【律动苏珊】\n[木灵加成] 战斗开始时，为距离最近宇航员额外提供一个木灵。","t":["太空律动","重装战士"]},{"n":"提莫","c":1,"s":"双倍节拍","d":"【双倍节拍】\n被动：普攻在6秒内造成额外魔法伤害。当敌人的层数达到5或更高时，提莫进入律动状态。\n主动：对当前目标增加层数。","t":["太空律动","牧羊人"]},{"n":"伊泽瑞尔","c":1,"s":"时空射击","d":"【时空射击】","t":["未来战士","狙神"]},{"n":"雷克塞","c":1,"s":"破土而出","d":"【破土而出】","t":["海魔人","斗士"]},{"n":"崔斯特","c":1,"s":"命运诡计","d":"【命运诡计】","t":["观星者","织命人"]},{"n":"泰隆","c":1,"s":"神谕者的审判","d":"【神谕者的审判】","t":["观星者","游侠"]},{"n":"蕾欧娜","c":1,"s":"破晓之盾","d":"【破晓之盾】","t":["法官","重装战士"]},{"n":"金克丝","c":1,"s":"鱼骨头","d":"【鱼骨头】","t":["幻灵战队","挑战者"]},{"n":"阿卡丽","c":2,"s":"星辰打击","d":"【星辰打击】","t":["新星特攻队","狂战士"]},{"n":"莫德凯撒","c":2,"s":"不灭之躯","d":"【不灭之躯】","t":["暗星","神谕","重装战士"]},{"n":"小木灵","c":2,"s":"木灵族冲击","d":"【木灵族冲击】\n[木灵加成] 木灵将浇灌花朵，在3秒内回复大量生命值。","t":["木灵族","牧羊人","旅人"]},{"n":"纳尔","c":2,"s":"弹弓机动","d":"【弹弓机动】\n[木灵加成] 木灵会与纳尔协同攻击，每秒造成少数物理伤害。","t":[]},{"n":"格温","c":2,"s":"翩翩起舞","d":"【翩翩起舞】\n被动：攻击造成魔法伤害。当格温的目标是生命值低于40%的敌人时，她会进入律动状态。\n主动：突进至附近一格，斩击生命值百分比最低的敌人，对目标造成魔法伤害，并对锥形范围内的敌人造成少量魔法伤害。 若该技能完成击杀，会再次突进并斩击，伤害为原来的70%！","t":["太空律动","游侠"]},{"n":"米利欧","c":2,"s":"究极无敌时间踢","d":"【究极无敌时间踢】","t":["未来战士","织命人"]},{"n":"潘森","c":2,"s":"高级防御","d":"【高级防御】","t":["未来战士","魔术师","斗士"]},{"n":"卑尔维斯","c":2,"s":"潮汐斩击","d":"【潮汐斩击】","t":["海魔人","狂战士","挑战者"]},{"n":"派克","c":2,"s":"死亡印记","d":"【死亡印记】","t":["灵能特工","旅人"]},{"n":"古拉加斯","c":2,"s":"化学狂暴","d":"【化学狂暴】","t":["灵能特工","斗士"]},{"n":"佐伊","c":2,"s":"飞星乱入","d":"【飞星乱入】","t":["法官","神谕"]},{"n":"贾克斯","c":2,"s":"星辰反击","d":"【星辰反击】","t":["观星者","堡垒卫士"]},{"n":"阿萝拉","c":3,"s":"蹦跳骇客","d":"【蹦跳骇客】","t":["幻灵战队","旅人"]},{"n":"俄洛伊","c":3,"s":"灵魂试炼","d":"【灵魂试炼】","t":["幻灵战队","牧羊人","重装战士"]},{"n":"茂凯","c":3,"s":"聚合之握","d":"【聚合之握】\n被动：从所有来源获得额外40%最大生命值。\n主动：在目标身上汇聚X形藤蔓，对每个被击中的敌人造成魔法伤害并使其眩晕1.5秒。","t":["新星特攻队","斗士"]},{"n":"卡莎","c":3,"s":"","d":"对当前目标的2格半径发射多颗导弹，每颗造成物理伤害。每次施放，会额外增加发射导弹。","t":["暗星","游侠"]},{"n":"厄加特","c":3,"s":"无畏战车","d":"【无畏战车】\n主动：获得护盾，持续3秒，并突进至当前目标身后。重置近程爆破的所有冷却时间。","t":["霸天机甲","斗士","狂战士"]},{"n":"菲兹","c":3,"s":"木灵族诱饵","d":"【木灵族诱饵】\n[木灵加成] 朝诱饵再派出个木灵，提升撕咬伤害。如果有四个或更多木灵被派向诱饵，究极木灵的半径将扩大至2格。","t":["木灵族","游侠"]},{"n":"莎弥拉","c":3,"s":"跳跃与摇摆","d":"【跳跃与摇摆】\n被动：每当敌人被击飞时，对其射击，造成物理伤害，并进入律动状态1秒。\n主动：向目标发射一轮弹幕，造成物理伤害并将其击飞1.25秒。","t":["太空律动","狙神"]},{"n":"奥恩","c":3,"s":"迪斯科地狱火","d":"【迪斯科地狱火】\n被动：战斗开始时，锻造一件临时的成品装备。若已装备3件装备，则随机一件成品装备在本场战斗剩余时间内变为光明装备。\n主动：获得护盾，持续3秒。随后向前方锥形区域喷火，造成魔法伤害。奥恩身上的任意护盾消失后，奥恩会进入律动状态，持续3秒。","t":["太空律动","堡垒卫士"]},{"n":"璐璐","c":3,"s":"星辰雨","d":"【星辰雨】\n被动：璐璐的技能在每局游戏中会获得不同的次级效果。\n主动：从天空召唤星体轰击，对附近3名敌人造成魔法伤害，并根据本局的占星师星座触发特殊效果。","t":["观星者","魔术师"]},{"n":"维克托","c":3,"s":"灵能风暴","d":"【灵能风暴】","t":["灵能特工","神谕"]},{"n":"黛安娜","c":3,"s":"苍白之瀑","d":"【苍白之瀑】\n被动：获得护盾后，玫击额外造成可叠加的魔法伤害，相当于该护盾值的5%，持续至战斗结束。\n主动：获得护盾值，并且在接下来的3秒，攻击还会打击邻格的敌人。","t":["法官","挑战者"]},{"n":"拉亚斯特","c":3,"s":"异星巨镰","d":"【异星巨镰】","t":["救世主"]},{"n":"厄运小姐","c":3,"s":"武神军械库","d":"【武神军械库】","t":["武装战姬"]},{"n":"千珏","c":4,"s":"星际追击","d":"【星际追击】\n被动：普攻和技能标记目标。敌人获得3个标记时，狼灵消耗所有标记，造成物理伤害。\n主动：跳跃最多1格，并朝最近的3名目标发射箭矢，每支造成少量物理伤害。","t":["新星特攻队","挑战者"]},{"n":"卡尔玛","c":4,"s":"奇点","d":"【奇点】","t":["暗星","旅人"]},{"n":"索尔","c":4,"s":"死亡射线","d":"【死亡射线】","t":["霸天机甲","神谕"]},{"n":"加里奥","c":4,"s":"重力矩阵","d":"【重力矩阵】","t":["霸天机甲","旅人"]},{"n":"库奇","c":4,"s":"小行星爆破","d":"【小行星爆破】\n[木灵加成]  每8秒向目标发射一枚爆破木灵命中时对1格半径内敌人造成物理伤害。","t":["木灵族","织命人"]},{"n":"拉莫斯","c":4,"s":"引力旋转","d":"【引力旋转】\n[木灵加成]  受到的攻击伤害降低。被攻击20次后，对2格半径内的敌人造成魔法伤害。","t":["木灵族","堡垒卫士"]},{"n":"娜美","c":4,"s":"泡泡爆裂","d":"【泡泡爆裂】","t":["太空律动","魔术师"]},{"n":"锐雯","c":4,"s":"时光扭曲","d":"【时光扭曲】","t":["未来战士","游侠"]},{"n":"努努","c":4,"s":"灾厄","d":"【灾厄】","t":["观星者","重装战士"]},{"n":"霞","c":4,"s":"星辰弹射","d":"【星辰弹射】\n被动：攻击会进行3次弹跳，每命中一个目标伤害降低60%，并在最后一个目标身后留下一根羽毛。\n主动：获得75%攻击速度，持续4秒。技能结束时，召回所有羽毛，由距离最近的3名敌人分摊伤害，每根羽毛造成少量物理伤害。","t":["观星者","狙神"]},{"n":"易大师","c":4,"s":"灵能打击","d":"【灵能打击】\n被动：每第三次攻击会额外打击一次，造成少数额外物理伤害。\n主动：短暂冥想后，进入灵能状态持续5秒获得15%全能吸血、75%攻击速度以及移动速度提升。每0.5秒会向附近一名随机敌人发射一道灵能投影，造成物理伤害。","t":["灵能特工","狂战士"]},{"n":"乐芙兰","c":4,"s":"现实碎裂","d":"【现实碎裂】\n被动：攻击转为造成魔法伤害。\n主动：向战场边缘派出多个复制体，持续到战斗结束。复制体和她并肩攻击但造成25%伤害。随后命令所有乐关兰朝她的当前目标发射一道雷电，造成魔法伤害。","t":["法官","牧羊人"]},{"n":"塔姆","c":4,"s":"巨舌鞭笞","d":"【巨舌鞭笞】\n被动：将受到治疗量转化为攻击和技能的额外伤害。每场战斗在生命值降至35%以下后可触发一次效果：获得持续4秒的护盾，数值等同于本场战斗已受到治疗量的50%。\n主动：治疗自身生命值，随后用舌鞭抽打两格内所有敌人，造成魔法伤害。","t":["命运祭司","斗士"]},{"n":"菲奥娜","c":5,"s":"完美剑术","d":"【完美剑术】\n被动：每2次攻击，会在目标身上显露一个破绽。若目标存在破绽，会突进攻击该破绽，造成额外真实伤害，并基于该伤害值的15%治疗自身。\n主动：在目标身上显露6个破绽，并快速攻击全部破绽。若目标阵亡，剩余破绽将转移至最近的敌人身上。击破最后一个破绽时，会生成一个2格范围的光环，在5秒内为范围内友军治疗生命值。","t":["狂战士","斗神","幻灵战队"]},{"n":"烬","c":5,"s":"太空歌剧","d":"【太空歌剧】\n被动：烬拥有固定0.9的攻击速度，每1%额外攻击速度会转化为0.8额外攻击力。\n主动：召唤4只幽灵之手，在接下来4次攻击中与烬一同射击。每只幽灵之手每次射击造成物理伤害，并削减目标4点护甲。最后一击造成244%额外伤害并穿透一条直线上最多的敌人，每命中一个后续目标伤害降低44%。","t":["暗星","灭星尊","狙神"]},{"n":"巴德","c":5,"s":"超友善飞行物","d":"【超友善飞行物】\n[木灵加成]  战斗开始时，为距离最近宇航员额外提供一个木灵。","t":["木灵族","神谕"]},{"n":"布里茨","c":5,"s":"派对破坏者","d":"【派对破坏者】\n被动：每2秒，对附近生命值最高的敌人召唤道闪电轰击，造成魔法伤害。\n主动：在敌人最密集的位置召唤一个迪斯科球，然后对当前目标使出上勾拳，造成魔法伤害并将其击飞。目标砸向迪斯科球时，会对3格半径内的敌人造成200点魔法伤害。每命中一名敌人，就会进入律动状态1秒。","t":["太空律动","重装战士","汪星机器人"]},{"n":"娑娜","c":5,"s":"灵能打击","d":"【灵能打击】\n被动：每第三次攻击会额外打击一次，造成少数额外物理伤害。\n主动：短暂冥想后，进入灵能状态持续5秒获得15%全能吸血、75%攻击速度以及移动速度提升。每0.5秒会向附近一名随机敌人发射一道灵能投影，造成物理伤害。","t":["灵能特工","牧羊人","最高指挥官"]},{"n":"莫甘娜","c":5,"s":"黑暗形态","d":"【黑暗形态】","t":["黑暗魔女"]},{"n":"格雷福斯","c":5,"s":"终极爆弹","d":"【终极爆弹】\n被动：普攻会发射锥形5发弹体，每发都造成物理伤害。\n主动：发射一枚爆破弹，对目标造成物理伤害，并对目标周围1格半径内所有敌人造成物理伤害。","t":["军工1号"]},{"n":"薇古丝","c":5,"s":"帮我一把，黑影！","d":"【帮我一把，黑影！】\n被动：薇古丝每次攻击时，暗影都会打击一名附近的敌人，造成少量魔法伤害。每当一名敌人被命中5次，暗影会对其额外打击一次。\n主动：暗影发动3次强化打击，造成大量魔法伤害。","t":["末日使者"]},{"n":"慎","c":5,"s":"现实撕裂","d":"【现实撕裂】\n被动：施放技能后，普攻获得可叠加魔法伤害。从第三次施放技能开始，该伤害变为真实伤害。\n主动：获得护盾，持续3秒;随后在人数最多的英雄集群处撕开一道裂隙，对范围内所有敌人造成被动的额外伤害。范围内敌人攻击速度降低0%，友军攻击速度提升80%，二者效果均会在3秒内快速衰减。","t":["暮光铁壁","堡垒卫士"]},{"n":"劫","c":5,"s":"量子分身","d":"【量子分身】","t":["天煞"]}],"traits":[{"n":"军工1号","e":"参与战斗后，打开一个军械库，为你最强的格雷福斯购买一项永久升级。","u":1,"cs":["格雷福斯"]},{"n":"命运祭司","e":"每3个回合，塔姆会提供金币。","u":1,"cs":["塔姆"]},{"n":"堡垒卫士","e":"你的队伍获得护甲和魔法抗性。堡垒英雄获得的加成更高，且在战斗前10秒内效果翻倍。(2)16护甲和魔法抗性。(4)35护甲和魔法抗性。(6)55护甲和魔法抗性。非堡垒英雄额外获得20点。","u":6,"cs":["亚托克斯","波比","贾克斯","奥恩","拉莫斯","慎"]},{"n":"天煞","e":"劫的专属羁绊，分身继承装备属性和当前生命值，并且可以施放技能。","u":1,"cs":["劫"]},{"n":"太空律动","e":"律动者可以进入律动状态。在此状态下，他们获得攻击速度和最大生命值回复，队伍中每有一名律动者，该加成就会提升。1太空律动：律动舞者可以进入律动状态。3太空律动：所有舞者以律动状态中开始战斗，持续3秒。5太空律动：每处于律动状态下一秒，获得3%可叠加的攻击力和法术强度。7太空律动：效果增加20%!","u":7,"cs":["内瑟斯","提莫","格温","莎弥拉","奥恩","娜美","布里茨"]},{"n":"幻灵战队","e":"每次玩家战斗后获得科技值。连败时获得等于连败长度5倍的科技值。每次幻灵战队参与击杀获得2点科技值。每拥有100科技，研制新的幻灵武器。","u":5,"cs":["贝蕾亚","金克丝","阿萝拉","俄洛伊","菲奥娜"]},{"n":"挑战者","e":"你的队伍获得10%攻击速度。挑战者单位获得额外攻击速度。当他们的目标阵亡时，挑战者会突进至新目标处，并在2.5秒内使自身攻击速度加成提升50%。(2)15%攻击速度。(3)22%攻击速度。(4)30%攻击速度。(5)40%攻击速度。","u":4,"cs":["金克丝","卑尔维斯","黛安娜","千珏"]},{"n":"救世主","e":"你每激活一个非独特羁绊，你的队伍就会获得2%/3%/4%攻击速度，以及2/3/4护甲和魔抗。","u":1,"cs":["拉亚斯特"]},{"n":"斗士","e":"你的队伍获得7%生命值。斗士获得更多。(2)+25%最大生命值。(4)+45%最大生命值。(6)+65%最大生命值。","u":7,"cs":["科加斯","雷克塞","潘森","古拉加斯","茂凯","厄加特","塔姆"]},{"n":"斗神","e":"你造成的玩家伤害的15%会转化为对你的治疗。","u":1,"cs":["菲奥娜"]},{"n":"新星特攻队","e":"(2)战斗开始6秒后，新星特攻队会根据英雄为友军提供能量激增。(5)获得一个特攻者选择器。所选的新星特攻队在能量爆发期间激活其特攻技能。亚托克斯：撕裂并破坏敌人；凯特琳：提供攻击速度；阿卡丽：队友获得暴击率；茂凯：治疗队友。","u":5,"cs":["亚托克斯","凯特琳","阿卡丽","茂凯","千珏"]},{"n":"旅人","e":"战斗开始时：你的坦克与战士获得持续15秒的护盾。其他友军获得伤害增幅。远航者单位获得双倍效果。(2)175护盾：9%伤害增幅。(3)250护盾：15%伤害增幅。(4)350护盾：18%伤害增幅。(5)500护盾：22%伤害增幅。(6)700护盾：27%伤害增幅。","u":5,"cs":["小木灵","派克","阿萝拉","卡尔玛","加里奥"]},{"n":"暗星","e":"(2)暗星单位会创造一个黑洞，吞噬生命值低于10%的敌人。(4)暗星单位获得30%双攻。(6)战力最强的暗星单位变为超大质量状态，从暗星羁绊获得100%效果加成，并生成2个小型黑洞。(9)所有暗星单位均变为超大质量状态。在等级10时，吞噬一切。","u":6,"cs":["丽桑卓","科加斯","莫德凯撒","卡莎","卡尔玛","烬"]},{"n":"暮光铁壁","e":"召唤一个可放置的圣物。在战斗开始时，它会为相邻的友军提供10%最大生命值的护盾和20%攻击速度。","u":1,"cs":["慎"]},{"n":"最高指挥官","e":"你的改装单位获得15%生命值和15%攻击速度。娑娜每两回合给你一个指令模块，持续2回合。","u":1,"cs":["娑娜"]},{"n":"木灵族","e":"木灵族会吸引木灵，木灵会以独特的方式强化木灵族的技能，同时还会获得额外生命值。(3)2个木灵，125生命值。(5)3个木灵，250生命值。(7)4个木灵，400生命值。在备战区生成一个克隆槽位。克隆完成后，获得金币以及放置在该槽位英雄的1星复制体。(10)6个木灵，1000生命值。召唤四大木灵领主! 克隆所需时间=英雄费用。","u":7,"cs":["维迦","波比","小木灵","菲兹","库奇","拉莫斯","巴德"]},{"n":"未来战士","e":"偏向经济的羁绊，2未来失败时获得金币/经验，获胜时也有收益。3未来是所有友军获得15%攻击速度，4未来是额外获得50%攻击速度。","u":4,"cs":["伊泽瑞尔","米利欧","潘森","锐雯"]},{"n":"末日使者","e":"战斗开始时：用厄运标记所有敌人。","u":1,"cs":["薇古丝"]},{"n":"武装战姬","e":"当你部署厄运小姐时，在神谕模式、挑战者模式和魔术师模式之间进行选择。厄运小姐根据她的模式拥有独特的技能，并获得相关的羁绊。","u":1,"cs":["厄运小姐"]},{"n":"汪星机器人","e":"每场战斗一次，在生命值降至45%以下后，变得不可被选取并每秒修复15%最大生命值的血量。当达到满血，或者没有其他友军存活时，重返战斗。","u":1,"cs":["布里茨"]},{"n":"法官","e":"法官会铭刻一条独特的法则，允许你在所选条件发生时选择获得一种效果。(2)为你的法则选择化身和效果。(3)效果翻倍。","u":4,"cs":["蕾欧娜","佐伊","黛安娜","乐芙兰"]},{"n":"海魔人","e":"造成伤害时会根据海魔人单位的星级生成幼群。(2)基于海魔人星级，造成伤害时生成幼体。(3)生成更多幼体！","u":3,"cs":["贝蕾亚","雷克塞","卑尔维斯"]},{"n":"游侠","e":"游侠获得攻击力和法术强度。首次生命值低于50%时，会遁入阴影。锁定他们的敌方目标会被转移至附近其他单位，优先选择坦克。(2)15%攻击力和法术强度。(3)30%攻击力和法术强度。(4)45%攻击力和法术强度。(5)60%攻击力和法术强度。","u":6,"cs":["贝蕾亚","泰隆","格温","卡莎","菲兹","锐雯"]},{"n":"灭星尊","e":"敌人的护甲和魔抗降低15%。","u":1,"cs":["烬"]},{"n":"灵能特工","e":"获得可装备给灵能特工的灵能道具。(2)获得恶意软件矩阵。(4)获得交感植入物。灵能道具对灵能单位会触发额外效果。","u":5,"cs":["派克","古拉加斯","维克托","易大师","娑娜"]},{"n":"牧羊人","e":"本赛季召唤羁绊，召唤一只狐狸，技能会随着牧羊人的总星级而变多。","u":6,"cs":["丽桑卓","提莫","小木灵","俄洛伊","乐芙兰","娑娜"]},{"n":"狂战士","e":"狂战士获得5%的全能吸血，还会获得伤害增幅，效果直接翻倍，自带吸血和增伤。","u":5,"cs":["阿卡丽","卑尔维斯","厄加特","易大师","菲奥娜"]},{"n":"狙神","e":"狙神获得伤害增幅，对距离更远的目标增幅更高。(2)18%增伤每格+2%。(3)24%增伤每格+3%。(4)28%增伤每格+4%。(5)32%增伤每格+5%。","u":4,"cs":["伊泽瑞尔","莎弥拉","霞","烬"]},{"n":"神谕","e":"神谕从所有来源获得法力回复。施放技能时该效果翻倍。(2)+50%法力回复。(3)+80%法力回复。(4)+100%法力回复。(5)+150%法力回复。神谕的技能在持续时间内消耗法力值，直到法力值耗尽。","u":5,"cs":["莫德凯撒","佐伊","维克托","索尔","巴德"]},{"n":"织命人","e":"织命人自带技能暴击词条，激活2羁绊后提升了技能生效和打出暴击的概率，激活4后提升暴击伤害。","u":3,"cs":["崔斯特","米利欧","库奇"]},{"n":"织命者","e":"织命人自带技能暴击词条，激活2羁绊后提升了技能生效和打出暴击的概率，激活4后提升暴击伤害。","u":1,"cs":["凯特琳"]},{"n":"观星者","e":"观星者们每局游戏都会绘制一个不同的星座。每完成5场玩家对战，即可获得1枚观星者纹章。处于强化格上的观星者单位，会获得各类属性加成。","u":6,"cs":["崔斯特","泰隆","贾克斯","璐璐","努努","霞"]},{"n":"重装战士","e":"重装单位在拥有护盾时，获得5%减伤。战斗开始时与生命值降至50%时：获得基于最大生命值的护盾，持续10秒。(2)最大生命值的16%。(4)最大生命值的28%。(6)最大生命值的40%；护盾期间获得10%伤害减免。","u":6,"cs":["内瑟斯","蕾欧娜","莫德凯撒","俄洛伊","努努","布里茨"]},{"n":"霸天机甲","e":"机甲单位可变身成终极形态，技能升级并获得60%最大生命值。变身的机甲占据2个队伍格子，且在机甲羁绊中计数为2。(3)能量电池：机甲获得20%伤害减免。(4)超频电池：提升至35%伤害减免。(6)精密工程：+1最大队伍人口。","u":3,"cs":["厄加特","索尔","加里奥"]},{"n":"魔术师","e":"激活羁绊后能放两次技能，但第二次技能变弱。","u":5,"cs":["丽桑卓","维迦","潘森","璐璐","娜美"]},{"n":"黑暗魔女","e":"友军受到技能的伤害降低5%，当莫甘娜处于黑暗形态时，该减伤提升至10%。","u":1,"cs":["莫甘娜"]}]};
+
+    const units = S17_DATA.units.map((u, i) => ({ id: i, name: u.n, cost: u.c, skill: u.s, description: u.d, traits: u.t }));
+    const rawTraits = S17_DATA.traits.map(t => ({ name: t.n, effect: t.e, unitCount: t.u, champions: t.cs }));
+    const traitMap = new Map();
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function parseTiers(effect, name, unitCount) {
+      const found = new Set();
+      let match;
+      const bracketPattern = /[\(（]\s*(\d+)\s*[\)）]/g;
+      while ((match = bracketPattern.exec(effect))) found.add(Number(match[1]));
+      const directPattern = new RegExp(`(?:^|[^0-9])(\\d+)\\s*${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "g");
+      while ((match = directPattern.exec(effect))) found.add(Number(match[1]));
+      if (name === "未来战士") {
+        const futurePattern = /(?:^|[^0-9])([234])\s*未来/g;
+        while ((match = futurePattern.exec(effect))) found.add(Number(match[1]));
+      }
+      if (!found.size) found.add(unitCount === 1 ? 1 : 1);
+      return [...found].filter(Boolean).sort((a, b) => a - b);
+    }
+
+    const traits = rawTraits.map(t => {
+      const tiers = parseTiers(t.effect, t.name, t.unitCount);
+      const explicit = /[\(（]\s*\d+\s*[\)）]/.test(t.effect) || new RegExp(`\\d+\\s*${t.name}`).test(t.effect) || (t.name === "未来战士" && /\d+\s*未来/.test(t.effect));
+      const trait = { ...t, tiers, explicit };
+      traitMap.set(t.name, trait);
+      return trait;
+    });
+
+    const byName = new Map(units.map(u => [u.name, u]));
+    const state = { tab: "units", lineup: [] };
+
+    function countTraits(lineup) {
+      const counts = new Map();
+      lineup.forEach(unit => unit.traits.forEach(trait => counts.set(trait, (counts.get(trait) || 0) + 1)));
+      return counts;
+    }
+
+    function evaluate(lineup, preferences = {}) {
+      const counts = countTraits(lineup);
+      const details = traits.map(trait => {
+        const count = counts.get(trait.name) || 0;
+        const activeTier = trait.tiers.filter(t => count >= t).at(-1) || 0;
+        const nextTier = trait.tiers.find(t => count < t) || 0;
+        return { trait, count, activeTier, nextTier, active: activeTier > 0 };
+      }).filter(x => x.count > 0 || x.active);
+      const active = details.filter(x => x.active);
+      const tierScore = active.reduce((sum, item) => sum + item.activeTier, 0);
+      const nearScore = details.reduce((sum, item) => {
+        if (!item.nextTier) return sum;
+        const gap = item.nextTier - item.count;
+        return sum + Math.max(0, 4 - gap);
+      }, 0);
+      const preferredTraits = preferences.traits || [];
+      const preferenceScore = preferredTraits.reduce((sum, name) => sum + ((counts.get(name) || 0) > 0 ? 80 : 0) + (details.find(d => d.trait.name === name)?.active ? 260 : 0), 0);
+      const preferredUnits = preferences.units || [];
+      const unitScore = preferredUnits.reduce((sum, name) => sum + (lineup.some(u => u.name === name) ? 160 : 0), 0);
+      const costScore = lineup.reduce((sum, unit) => sum + unit.cost, 0);
+      const traitDensity = new Set(lineup.flatMap(u => u.traits)).size;
+      const score = active.length * 10000 + preferenceScore + unitScore + tierScore * 110 + nearScore * 18 + traitDensity * 6 + costScore;
+      return { counts, details, active, tierScore, nearScore, costScore, score };
+    }
+
+    function parsePrompt() {
+      const prompt = document.querySelector("#promptInput").value.trim();
+      const inputLevel = Number(document.querySelector("#levelInput").value || 8);
+      const matchedLevel = prompt.match(/(\d+)\s*(?:人口|人|个棋子|枚棋子|位)/);
+      const level = Math.max(1, Math.min(10, Number(matchedLevel?.[1] || inputLevel || 8)));
+      document.querySelector("#levelInput").value = level;
+      const wantedTraits = traits.filter(t => prompt.includes(t.name)).map(t => t.name);
+      const wantedUnits = units.filter(u => prompt.includes(u.name)).map(u => u.name);
+      const maxCostMatch = prompt.match(/(?:不超过|最多|最高)\s*(\d)\s*费/);
+      const exactCostMatch = prompt.match(/(\d)\s*费/);
+      return {
+        prompt,
+        level,
+        traits: wantedTraits,
+        units: wantedUnits,
+        maxCost: maxCostMatch ? Number(maxCostMatch[1]) : null,
+        exactCost: !maxCostMatch && exactCostMatch ? Number(exactCostMatch[1]) : null
+      };
+    }
+
+    function candidateUnits(preferences) {
+      let list = units.slice();
+      if (preferences.maxCost) list = list.filter(u => u.cost <= preferences.maxCost);
+      if (preferences.exactCost) list = list.filter(u => u.cost === preferences.exactCost);
+      preferences.units.forEach(name => {
+        const unit = byName.get(name);
+        if (unit && !list.includes(unit)) list.unshift(unit);
+      });
+      return list.sort((a, b) => {
+        const aPref = a.traits.some(t => preferences.traits.includes(t)) || preferences.units.includes(a.name);
+        const bPref = b.traits.some(t => preferences.traits.includes(t)) || preferences.units.includes(b.name);
+        return Number(bPref) - Number(aPref) || b.traits.length - a.traits.length || b.cost - a.cost || a.name.localeCompare(b.name, "zh-CN");
+      });
+    }
+
+    function stateKey(lineup) {
+      return lineup.map(u => u.id).sort((a, b) => a - b).join("-");
+    }
+
+    function buildLineup() {
+      const preferences = parsePrompt();
+      const target = preferences.level;
+      const candidates = candidateUnits(preferences);
+      const beamWidth = target >= 9 ? 1600 : 2200;
+      let beam = [{ lineup: [], used: new Set(), score: 0 }];
+
+      for (let step = 0; step < target; step++) {
+        const next = [];
+        const seen = new Set();
+        for (const stateItem of beam) {
+          for (const unit of candidates) {
+            if (stateItem.used.has(unit.id)) continue;
+            const lineup = stateItem.lineup.concat(unit);
+            const key = stateKey(lineup);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            const ev = evaluate(lineup, preferences);
+            next.push({ lineup, used: new Set(lineup.map(u => u.id)), score: ev.score });
+          }
+        }
+        next.sort((a, b) => b.score - a.score);
+        beam = next.slice(0, beamWidth);
+      }
+
+      let best = beam[0]?.lineup || candidates.slice(0, target);
+      let bestScore = evaluate(best, preferences).score;
+      let improved = true;
+      while (improved) {
+        improved = false;
+        const used = new Set(best.map(u => u.id));
+        for (let i = 0; i < best.length; i++) {
+          for (const candidate of candidates) {
+            if (used.has(candidate.id)) continue;
+            const next = best.slice();
+            next[i] = candidate;
+            const ev = evaluate(next, preferences);
+            if (ev.score > bestScore) {
+              best = next;
+              bestScore = ev.score;
+              improved = true;
+              break;
+            }
+          }
+          if (improved) break;
+        }
+      }
+
+      state.lineup = best.sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name, "zh-CN"));
+      renderLineup(preferences);
+    }
+
+    function renderLineup(preferences = parsePrompt()) {
+      const ev = evaluate(state.lineup, preferences);
+      const lineup = document.querySelector("#lineup");
+      lineup.style.gridTemplateColumns = `repeat(${Math.min(Math.max(state.lineup.length, 1), 8)}, minmax(92px, 1fr))`;
+      lineup.innerHTML = state.lineup.map(unit => `
+        <article class="slot">
+          <span class="cost">${unit.cost}费</span>
+          <span class="slot-name">${escapeHTML(unit.name)}</span>
+          <div class="chips">${unit.traits.map(t => `<span class="chip">${escapeHTML(t)}</span>`).join("") || `<span class="chip warn">无羁绊</span>`}</div>
+        </article>
+      `).join("");
+
+      document.querySelector("#summaryGrid").innerHTML = `
+        <div class="metric"><b>${state.lineup.length}</b><span>上阵棋子</span></div>
+        <div class="metric"><b>${ev.active.length}</b><span>已开启羁绊</span></div>
+        <div class="metric"><b>${ev.tierScore}</b><span>档位合计</span></div>
+        <div class="metric"><b>${ev.costScore}</b><span>费用合计</span></div>
+      `;
+      document.querySelector("#lineupChips").innerHTML = ev.active
+        .sort((a, b) => b.activeTier - a.activeTier || a.trait.name.localeCompare(b.trait.name, "zh-CN"))
+        .map(item => `<span class="chip active">${escapeHTML(item.trait.name)} ${item.count}/${item.activeTier}</span>`)
+        .join("") || `<span class="chip warn">暂无开启羁绊</span>`;
+
+      renderActiveTraits(ev);
+    }
+
+    function renderActiveTraits(ev = evaluate(state.lineup)) {
+      const rows = ev.details
+        .filter(item => item.count > 0)
+        .sort((a, b) => Number(b.active) - Number(a.active) || b.count - a.count || a.trait.name.localeCompare(b.trait.name, "zh-CN"))
+        .map(item => {
+          const target = item.nextTier || item.activeTier || item.trait.tiers.at(-1) || 1;
+          const width = Math.min(100, Math.round((item.count / target) * 100));
+          const label = item.active ? `已开 ${item.activeTier}` : `差 ${item.nextTier - item.count}`;
+          return `<div class="trait-row ${item.active ? "" : "inactive"}">
+            <b>${escapeHTML(item.trait.name)}</b>
+            <div class="bar" style="--w:${width}%"><i></i></div>
+            <span class="chip ${item.active ? "active" : "warn"}">${item.count}/${target} ${label}</span>
+          </div>`;
+        }).join("");
+      document.querySelector("#activeTraits").innerHTML = rows || `<div class="empty">生成阵容后显示羁绊进度</div>`;
+    }
+
+    function renderFilters() {
+      document.querySelector("#unitCount").textContent = units.length;
+      document.querySelector("#traitCount").textContent = traits.length;
+      document.querySelector("#tierCount").textContent = traits.reduce((sum, trait) => sum + trait.tiers.length, 0);
+      document.querySelector("#traitFilter").innerHTML += traits
+        .map(t => `<option value="${escapeHTML(t.name)}">${escapeHTML(t.name)}</option>`).join("");
+      document.querySelector("#costFilters").innerHTML = [1,2,3,4,5].map(cost => `
+        <label class="check"><input type="checkbox" name="cost" value="${cost}"> ${cost}费</label>
+      `).join("");
+    }
+
+    function filteredUnits() {
+      const q = document.querySelector("#searchInput").value.trim().toLowerCase();
+      const trait = document.querySelector("#traitFilter").value;
+      const costs = [...document.querySelectorAll("input[name=cost]:checked")].map(el => Number(el.value));
+      return units.filter(unit => {
+        const text = `${unit.name} ${unit.skill} ${unit.description} ${unit.traits.join(" ")}`.toLowerCase();
+        return (!q || text.includes(q)) && (!trait || unit.traits.includes(trait)) && (!costs.length || costs.includes(unit.cost));
+      });
+    }
+
+    function renderUnits() {
+      const list = filteredUnits();
+      document.querySelector("#resultCount").textContent = `${list.length} / ${units.length}`;
+      document.querySelector("#unitCards").innerHTML = list.map(unit => `
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <h3>${escapeHTML(unit.name)}</h3>
+              <span class="hint">${escapeHTML(unit.skill || "未标注技能名")}</span>
+            </div>
+            <span class="chip cost${unit.cost}">${unit.cost}费</span>
+          </div>
+          <div class="chips">${unit.traits.map(t => `<span class="chip">${escapeHTML(t)}</span>`).join("") || `<span class="chip warn">无羁绊</span>`}</div>
+          <p class="desc">${escapeHTML(unit.description || "暂无技能描述")}</p>
+        </article>
+      `).join("") || `<div class="empty">没有匹配的棋子</div>`;
+    }
+
+    function renderTraits() {
+      document.querySelector("#traitCards").innerHTML = traits.map(trait => `
+        <article class="card trait-card">
+          <div class="card-head">
+            <div>
+              <h3>${escapeHTML(trait.name)}</h3>
+              <span class="hint">${trait.unitCount} 个棋子 · ${trait.explicit ? "已解析档位" : "无档位标注，默认 1"}</span>
+            </div>
+            <span class="chip ${trait.explicit ? "active" : "warn"}">${trait.tiers.join(" / ")}</span>
+          </div>
+          <div class="chips">${trait.champions.map(name => `<span class="chip">${escapeHTML(name)}</span>`).join("")}</div>
+          <p class="desc">${escapeHTML(trait.effect)}</p>
+        </article>
+      `).join("");
+    }
+
+    function bindEvents() {
+      document.querySelector("#buildBtn").addEventListener("click", buildLineup);
+      document.querySelector("#promptInput").addEventListener("keydown", event => {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) buildLineup();
+      });
+      document.querySelectorAll("[data-example]").forEach(button => {
+        button.addEventListener("click", () => {
+          document.querySelector("#promptInput").value = button.dataset.example;
+          buildLineup();
+        });
+      });
+      document.querySelectorAll(".tab").forEach(button => {
+        button.addEventListener("click", () => {
+          state.tab = button.dataset.tab;
+          document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab === button));
+          document.querySelector("#unitsView").hidden = state.tab !== "units";
+          document.querySelector("#traitsView").hidden = state.tab !== "traits";
+        });
+      });
+      ["#searchInput", "#traitFilter"].forEach(sel => document.querySelector(sel).addEventListener("input", renderUnits));
+      document.querySelector("#costFilters").addEventListener("change", renderUnits);
+      document.querySelector("#resetBtn").addEventListener("click", () => {
+        document.querySelector("#searchInput").value = "";
+        document.querySelector("#traitFilter").value = "";
+        document.querySelectorAll("input[name=cost]").forEach(input => input.checked = false);
+        renderUnits();
+      });
+    }
+
+    renderFilters();
+    renderUnits();
+    renderTraits();
+    bindEvents();
+    buildLineup();
+  </script>
+</body>
+</html>
