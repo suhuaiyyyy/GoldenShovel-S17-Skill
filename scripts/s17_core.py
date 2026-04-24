@@ -17,7 +17,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
 DEFAULT_DATA = SKILL_DIR / "assets" / "s17_data.json"
 DEFAULT_ROSTER_XLSX = SKILL_DIR / "assets" / "source-workbooks" / "金铲铲S17棋子羁绊大全.xlsx"
-DEFAULT_MANUAL_XLSX = SKILL_DIR / "assets" / "source-workbooks" / "金铲铲S17赛季完全辅助手册.xlsx"
+DEFAULT_MANUAL_XLSX = SKILL_DIR / "assets" / "source-workbooks" / "金铲铲S17赛季完全辅助手册_v2.xlsx"
 
 NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 

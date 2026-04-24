@@ -12,7 +12,7 @@ Use this skill for 金铲铲/云顶类 S17 questions involving units, traits, tr
 Bundled data lives at `assets/s17_data.json` and is generated from:
 
 - `assets/source-workbooks/金铲铲S17棋子羁绊大全.xlsx`
-- `assets/source-workbooks/金铲铲S17赛季完全辅助手册.xlsx`
+- `assets/source-workbooks/金铲铲S17赛季完全辅助手册_v2.xlsx`
 
 The merged dataset includes:
 

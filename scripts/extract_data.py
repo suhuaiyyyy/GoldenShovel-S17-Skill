@@ -12,7 +12,7 @@ from s17_core import DEFAULT_DATA, DEFAULT_MANUAL_XLSX, DEFAULT_ROSTER_XLSX, ext
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract Golden Spatula S17 data from workbook(s).")
     parser.add_argument("--roster-xlsx", default=str(DEFAULT_ROSTER_XLSX), help="Path to 金铲铲S17棋子羁绊大全.xlsx")
-    parser.add_argument("--manual-xlsx", default=str(DEFAULT_MANUAL_XLSX), help="Path to 金铲铲S17赛季完全辅助手册.xlsx")
+    parser.add_argument("--manual-xlsx", default=str(DEFAULT_MANUAL_XLSX), help="Path to 金铲铲S17赛季完全辅助手册_v2.xlsx")
     parser.add_argument("--out", default=str(DEFAULT_DATA), help="Output JSON path.")
     args = parser.parse_args()
 

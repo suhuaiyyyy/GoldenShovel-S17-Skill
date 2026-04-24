@@ -17,7 +17,7 @@
 ## 数据来源
 
 - `assets/source-workbooks/金铲铲S17棋子羁绊大全.xlsx`
-- `assets/source-workbooks/金铲铲S17赛季完全辅助手册.xlsx`
+- `assets/source-workbooks/金铲铲S17赛季完全辅助手册_v2.xlsx`
 
 当前合并数据覆盖：
 
